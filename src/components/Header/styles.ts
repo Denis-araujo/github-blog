@@ -8,6 +8,8 @@ export const Header = styled.header`
   align-items: center;
   justify-content: space-between;
   flex-direction: row-reverse;
+
+  z-index: 0;
 `
 
 export const Logo = styled.img`
