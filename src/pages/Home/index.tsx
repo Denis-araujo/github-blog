@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, ChangeEvent } from 'react'
+import { useForm } from 'react-hook-form'
 import { api } from '../../services/api'
 import { ProfileCard } from './ProfileCard'
 import * as S from './styles'
+
+import debounce from 'lodash.debounce'
+import { differenceInBusinessDays } from 'date-fns'
 
 type User = {
   name: string
@@ -11,11 +15,27 @@ type User = {
   avatarUrl: string
 }
 
+type Posts = {
+  title: string
+  id: number
+  createdAt: string
+  body: string
+}
+
 export function Home() {
   const [user, setUser] = useState<User>()
+  const [posts, setPosts] = useState<Posts[]>([])
+
+  const postsSearch = useForm({
+    defaultValues: {
+      search: '',
+    },
+  })
+
+  const { register, setValue } = postsSearch
 
   async function response() {
-    const response = await api.get('maykbrito')
+    const response = await api.get('Denis-araujo')
     const data = response.data
 
     setUser({
@@ -31,52 +51,87 @@ export function Home() {
     response()
   }, [])
 
+  const debounceFn = useCallback(debounce(handleDebounceFn, 500), [])
+
+  async function handleDebounceFn(search: string) {
+    const response = await api.get(
+      `https://api.github.com/search/issues?q=${search}repo:rocketseat-education/reactjs-github-blog-challenge`,
+    )
+
+    const data = await response.data
+
+    setPosts(
+      data.items.map((post) => {
+        return {
+          id: post.id,
+          title: post.title,
+          body: post.body,
+          createdAt: post.created_at,
+        }
+      }),
+    )
+  }
+
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    setValue('search', event.target.value)
+    debounceFn(event.target.value)
+  }
+
+  useEffect(() => {
+    handleDebounceFn('')
+  }, [])
+
+  console.log(posts)
+
   return (
     <S.Container>
       <header>
         <ProfileCard
-          name={user?.name!}
-          avatarUrl={user?.avatarUrl!}
-          bio={user?.bio!}
-          followers={user?.followers!}
-          htmlUrl={user?.htmlUrl!}
+          name={user?.name}
+          avatarUrl={user?.avatarUrl}
+          bio={user?.bio}
+          followers={user?.followers}
+          htmlUrl={user?.htmlUrl}
         />
       </header>
 
       <S.SearchForm>
         <div>
           <span>Publicações</span>
-          <span>6 publicações</span>
+          <span>{posts.length} publicações</span>
         </div>
 
-        <input type="text" placeholder="Buscar conteúdo" />
+        <input
+          type="text"
+          placeholder="Buscar conteúdo"
+          {...register('search', {
+            onChange: handleChange,
+          })}
+        />
       </S.SearchForm>
 
       <S.ListOfPosts>
-        <S.PostContainer>
-          <S.PostContent>
-            <div>
-              <S.PostTitle>
-                JavaScript data types and data structures
-              </S.PostTitle>
-              <S.PostTime>Há 1 dia</S.PostTime>
-            </div>
+        {posts?.map((post) => {
+          return (
+            <S.PostContainer key={post.id} href={`post/${post.id}`}>
+              <S.PostContent>
+                <div>
+                  <S.PostTitle>{post.title}</S.PostTitle>
+                  <S.PostTime>
+                    há{' '}
+                    {differenceInBusinessDays(
+                      new Date(),
+                      new Date(post.createdAt),
+                    )}{' '}
+                    dias
+                  </S.PostTime>
+                </div>
 
-            <p>
-              Programming languages all have built-in data structures, but these
-              often differ from one language to another. This article attempts
-              to list the built-in data structures available in JavaScript and
-              what properties they have. These can be used to build other data
-              structures. Wherever possible, comparisons with other languages
-              are drawn. Dynamic typing JavaScript is a loosely typed and
-              dynamic language. Variables in JavaScript are not directly
-              associated with any particular value type, and any variable can be
-              assigned (and re-assigned) values of all types: let foo = 42; //
-              foo is now a number foo = &apos;bar&rsquo;; // foo is now a string
-              foo = true; // foo is now a boolean
-            </p>
-          </S.PostContent>
-        </S.PostContainer>
+                <p>{post.body}</p>
+              </S.PostContent>
+            </S.PostContainer>
+          )
+        })}
       </S.ListOfPosts>
     </S.Container>
   )

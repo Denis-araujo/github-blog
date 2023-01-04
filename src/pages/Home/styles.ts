@@ -59,12 +59,17 @@ export const ListOfPosts = styled.div`
   margin-bottom: 1.5rem;
 `
 
-export const PostContainer = styled.div`
+export const PostContainer = styled.a`
   width: calc((100vw - 40rem) / 2);
   height: 16.25rem;
+  text-decoration: none;
 
   background: ${(props) => props.theme.basePost};
   border-radius: 10px;
+
+  :hover {
+    cursor: pointer;
+  }
 `
 
 export const PostContent = styled.div`
@@ -91,6 +96,7 @@ export const PostContent = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     max-height: 100px;
+    max-width: 22rem;
 
     display: -webkit-box;
     -webkit-line-clamp: 4; // Quantidade de linhas
