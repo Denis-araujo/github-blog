@@ -20,6 +20,7 @@ type Posts = {
   id: number
   createdAt: string
   body: string
+  number: number
 }
 
 export function Home() {
@@ -34,7 +35,7 @@ export function Home() {
 
   const { register, setValue } = postsSearch
 
-  async function response() {
+  async function responseUser() {
     const response = await api.get('Denis-araujo')
     const data = response.data
 
@@ -48,7 +49,7 @@ export function Home() {
   }
 
   useEffect(() => {
-    response()
+    responseUser()
   }, [])
 
   const debounceFn = useCallback(debounce(handleDebounceFn, 500), [])
@@ -67,6 +68,7 @@ export function Home() {
           title: post.title,
           body: post.body,
           createdAt: post.created_at,
+          number: post.number,
         }
       }),
     )
@@ -113,7 +115,7 @@ export function Home() {
       <S.ListOfPosts>
         {posts?.map((post) => {
           return (
-            <S.PostContainer key={post.id} href={`post/${post.id}`}>
+            <S.PostContainer key={post.id} href={`post/${post.number}`}>
               <S.PostContent>
                 <div>
                   <S.PostTitle>{post.title}</S.PostTitle>
