@@ -28,7 +28,7 @@ export function Post() {
 
   const responsePostContent = useCallback(async () => {
     const response = await api.get(
-      `https://api.github.com/repos/rocketseat-education/reactjs-github-blog-challenge/issues/${id}`,
+      `https://api.github.com/repos/Denis-araujo/github-blog/issues/${id}`,
     )
 
     const data = response.data
@@ -37,7 +37,7 @@ export function Post() {
       title: data.title,
       createdAt: data.created_at,
       comments: data.comments,
-      url: data.url,
+      url: data.html_url,
       content: data.body,
       author: data.user.login,
     })
@@ -77,7 +77,7 @@ export function Post() {
           </span>
           <span>
             <ChatCircle size={18} weight="fill" />
-            {postContent?.comments} comentarios
+            {postContent?.comments} comentários
           </span>
         </div>
       </S.Header>

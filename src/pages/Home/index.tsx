@@ -33,7 +33,9 @@ export function Home() {
     },
   })
 
-  const { register, setValue } = postsSearch
+  const { register, setValue, watch } = postsSearch
+
+  const search = watch('search')
 
   async function responseUser() {
     const response = await api.get('Denis-araujo')
@@ -52,11 +54,11 @@ export function Home() {
     responseUser()
   }, [])
 
-  const debounceFn = useCallback(debounce(handleDebounceFn, 500), [])
+  const debounceFn = useCallback(debounce(handleDebounceFn, 1000), [])
 
   async function handleDebounceFn(search: string) {
     const response = await api.get(
-      `https://api.github.com/search/issues?q=${search}repo:rocketseat-education/reactjs-github-blog-challenge`,
+      `https://api.github.com/search/issues?q=${search}repo:Denis-araujo/github-blog`,
     )
 
     const data = await response.data
@@ -83,8 +85,6 @@ export function Home() {
     handleDebounceFn('')
   }, [])
 
-  console.log(posts)
-
   return (
     <S.Container>
       <header>
@@ -106,6 +106,7 @@ export function Home() {
         <input
           type="text"
           placeholder="Buscar conteúdo"
+          onChange={() => handleDebounceFn(search)}
           {...register('search', {
             onChange: handleChange,
           })}
